@@ -11,6 +11,10 @@ type Pokemon struct {
 	Name string
 }
 
+type Message struct {
+	Message string
+}
+
 const fileName = "data/example.csv"
 
 func GetAllPokemon() []Pokemon {
@@ -33,4 +37,17 @@ func GetAllPokemon() []Pokemon {
 	}
 
 	return data
+}
+
+func PopulateAllPokemon(limit string, offset string) Message {
+	msg, err := utils.PopulatePokemon(limit, offset)
+
+	if err != nil {
+		fmt.Println("Error creating csv")
+		panic(err)
+	}
+
+	message := Message{Message: msg}
+	return message
+
 }

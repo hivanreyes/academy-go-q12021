@@ -7,4 +7,5 @@ import (
 
 var RegisterPokemonRoutes = func(router *mux.Router) {
 	router.HandleFunc("/getAllPokemon", controllers.GetPokemon).Methods("GET")
+	router.HandleFunc("/populateAllPokemon", controllers.PopulatePokemon).Methods("GET")
 }
