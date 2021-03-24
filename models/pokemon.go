@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/hivanreyes/academy-go-q12021/pkg/utils"
+	"github.com/hivanreyes/academy-go-q12021/utils"
 )
 
 type Pokemon struct {

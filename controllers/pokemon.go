@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/hivanreyes/academy-go-q12021/pkg/models"
+	"github.com/hivanreyes/academy-go-q12021/models"
 )
 
 func GetPokemon(w http.ResponseWriter, r *http.Request) {

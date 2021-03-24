@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/hivanreyes/academy-go-q12021/pkg/routes"
+	"github.com/hivanreyes/academy-go-q12021/routes"
 	"github.com/joho/godotenv"
 )
 
