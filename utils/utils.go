@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Removing file
 func RemoveFile(filename string) {
 	err := os.Remove(filename)
 

@@ -28,7 +28,7 @@ func New() *Service {
 }
 
 // Get all pokemons
-func (s *Service) ReadPokemon() ([][]string, error) {
+func (s *Service) ReadPokemon() ([]model.Pokemon, error) {
 	// Open CSV file
 	file, err := os.Open(filename)
 	if err != nil {
@@ -53,7 +53,21 @@ func (s *Service) ReadPokemon() ([][]string, error) {
 		return nil, err
 	}
 
-	return lines, nil
+	var pokemons []model.Pokemon = nil
+
+	for _, pokemon := range lines {
+		// Getting pokemon ID
+		var id = pokemon[0]
+		var name = pokemon[1]
+		pokeTmp := model.Pokemon{
+			Id:   id,
+			Name: name,
+		}
+		pokemons = append(pokemons, pokeTmp)
+
+	}
+
+	return pokemons, nil
 }
 
 func getDataFromApi() (*model.Response, error) {
@@ -86,11 +100,11 @@ func getDataFromApi() (*model.Response, error) {
 }
 
 // Get data from api and save data into CSV
-func (s *Service) SavePokemon() error {
+func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 	data, errData := getDataFromApi()
 
 	if errData != nil {
-		return errData
+		return nil, errData
 	}
 
 	utils.RemoveFile(newFileName)
@@ -98,7 +112,7 @@ func (s *Service) SavePokemon() error {
 	f, err := os.Create(newFileName)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer f.Close()
@@ -115,16 +129,25 @@ func (s *Service) SavePokemon() error {
 		fmt.Println("Error adding titles to csv")
 	}
 
+	var pokemons []model.Pokemon = nil
+
 	for _, pokemon := range *data.Result {
 		// Getting pokemon ID
 		re, _ := regexp.Compile("/pokemon/(.*)/")
 		values := re.FindStringSubmatch(pokemon.Url)
 		var id = values[1]
 		var name = pokemon.Name
+		pokeTmp := model.Pokemon{
+			Id:   id,
+			Name: name,
+		}
 		if err := w.Write([]string{id, name}); err != nil {
 			fmt.Println("Error adding pokemon to csv")
 		}
+
+		pokemons = append(pokemons, pokeTmp)
+
 	}
 
-	return nil
+	return pokemons, nil
 }

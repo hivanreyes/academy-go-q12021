@@ -3,11 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/hivanreyes/academy-go-q12021/model"
 )
 
 type UseCase interface {
-	ReadPokemon() ([][]string, error)
-	SavePokemon() error
+	ReadPokemon() ([]model.Pokemon, error)
+	SavePokemon() ([]model.Pokemon, error)
 }
 
 // Usecase struct
@@ -38,7 +40,13 @@ func (u *PokeUsecase) ReadPokemon(w http.ResponseWriter, r *http.Request) {
 
 // Save Pokemon controller
 func (u *PokeUsecase) SavePokemon(w http.ResponseWriter, r *http.Request) {
-	pokemon := u.useCase.SavePokemon()
+	pokemon, err := u.useCase.SavePokemon()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	res, _ := json.Marshal(pokemon)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

@@ -20,7 +20,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Service
 	s := service.New()
 	u := usecase.New(s)
 	c := controller.New(u)
