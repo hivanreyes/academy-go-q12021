@@ -1,13 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
-	"github.com/hivanreyes/academy-go-q12021/routes"
 	"github.com/joho/godotenv"
+
+	"github.com/hivanreyes/academy-go-q12021/controller"
+	"github.com/hivanreyes/academy-go-q12021/router"
+	"github.com/hivanreyes/academy-go-q12021/service"
+	"github.com/hivanreyes/academy-go-q12021/usecase"
 )
 
 func main() {
@@ -16,8 +20,12 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	r := mux.NewRouter()
-	routes.RegisterPokemonRoutes(r)
-	http.Handle("/", r)
+	// Service
+	s := service.New()
+	u := usecase.New(s)
+	c := controller.New(u)
+	r := router.New(c)
+
+	fmt.Println("Server started")
 	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), r))
 }
