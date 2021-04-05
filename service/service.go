@@ -164,7 +164,6 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, itemsNumber int, itemsW
 	if itemsNumber%2 != 0 {
 		numWorkers = numWorkers + 1
 	}
-
 	jobs := make(chan model.Pokemon, len(pokemons))
 	pokeRes := make(chan model.Pokemon, itemsNumber)
 	var pokemonFiltered []model.Pokemon = nil
@@ -215,6 +214,10 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, itemsNumber int, itemsW
 
 	// Create filtered poke model
 	for pokeItem := range pokeRes {
+		if len(pokemonFiltered) == itemsNumber {
+			break
+		}
+
 		var id = pokeItem.Id
 		var name = pokeItem.Name
 		pokeTmp := model.Pokemon{
