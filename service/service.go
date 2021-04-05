@@ -8,6 +8,8 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
+	"sync"
 
 	"github.com/go-resty/resty/v2"
 
@@ -150,4 +152,65 @@ func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 	}
 
 	return pokemons, nil
+}
+
+// Get all pokemons concurrently
+func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string, pokemons []model.Pokemon) ([]model.Pokemon, error) {
+	itemsNumber, err := strconv.Atoi(items)
+	if err != nil {
+		return nil, err
+	}
+
+	itemsWorker, err := strconv.Atoi(itemPerWorker)
+	if err != nil {
+		return nil, err
+	}
+
+	numWorkers := itemsNumber / itemsWorker
+
+	if itemsNumber%2 != 0 {
+		numWorkers = numWorkers + 1
+	}
+
+	jobs := make(chan model.Pokemon, len(pokemons))
+	pokeRes := make(chan model.Pokemon, itemsNumber)
+
+	// Add all jobs
+	for _, pokemon := range pokemons {
+		jobs <- pokemon
+	}
+	close(jobs)
+
+	isOdd := typeItem == "odd"
+
+	var wg sync.WaitGroup
+	wg.Add(numWorkers)
+
+	// Create workers
+	for i := 0; i < numWorkers; i++ {
+		defer wg.Done()
+
+		for item := range jobs {
+			pokemonId, _ := strconv.Atoi(item.Id)
+
+			if itemsNumber == len(pokeRes) {
+				break
+			}
+
+			if isOdd && pokemonId%2 == 0 {
+				pokeRes <- item
+			}
+
+			if !isOdd && pokemonId%2 != 0 {
+				pokeRes <- item
+			}
+
+		}
+	}
+
+	wg.Wait()
+	close(pokeRes)
+
+	return pokemons, nil
+
 }

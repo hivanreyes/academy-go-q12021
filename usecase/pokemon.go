@@ -1,6 +1,8 @@
 package usecase
 
-import "github.com/hivanreyes/academy-go-q12021/model"
+import (
+	"github.com/hivanreyes/academy-go-q12021/model"
+)
 
 type UseCase struct {
 	service Service
@@ -10,6 +12,7 @@ type UseCase struct {
 type Service interface {
 	ReadPokemon() ([]model.Pokemon, error)
 	SavePokemon() ([]model.Pokemon, error)
+	ReadConcurrentPokemon() ([]model.Pokemon, error)
 }
 
 // New UseCase
@@ -25,4 +28,15 @@ func (u *UseCase) ReadPokemon() ([]model.Pokemon, error) {
 // SavePokemon Usecase
 func (u *UseCase) SavePokemon() ([]model.Pokemon, error) {
 	return u.service.SavePokemon()
+}
+
+// ReadPokemon Usecase
+func (u *UseCase) ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string) ([]model.Pokemon, error) {
+	pokemons, err := u.service.ReadPokemon()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return u.service.ReadConcurrentPokemon(typeItem, items, itemPerWorker, pokemons)
 }
