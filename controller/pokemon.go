@@ -10,7 +10,7 @@ import (
 type UseCase interface {
 	ReadPokemon() ([]model.Pokemon, error)
 	SavePokemon() ([]model.Pokemon, error)
-	ReadConcurrentPokemon() ([]model.Pokemon, error)
+	ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string) ([]model.Pokemon, error)
 }
 
 // Usecase struct

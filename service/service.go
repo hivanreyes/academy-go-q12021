@@ -154,7 +154,7 @@ func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 	return pokemons, nil
 }
 
-// Get all pokemons concurrently
+// ReadConcurrentPokemon Get all pokemons concurrently
 func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string, pokemons []model.Pokemon) ([]model.Pokemon, error) {
 	itemsNumber, err := strconv.Atoi(items)
 	if err != nil {
@@ -173,6 +173,7 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 	}
 
 	jobs := make(chan model.Pokemon, len(pokemons))
+	var pokemonFiltered []model.Pokemon = nil
 	pokeRes := make(chan model.Pokemon, itemsNumber)
 
 	// Add all jobs
@@ -188,29 +189,40 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 
 	// Create workers
 	for i := 0; i < numWorkers; i++ {
-		defer wg.Done()
 
-		for item := range jobs {
-			pokemonId, _ := strconv.Atoi(item.Id)
+		go func() {
+			defer wg.Done()
+			for item := range jobs {
+				pokemonId, _ := strconv.Atoi(item.Id)
+				if itemsNumber == len(pokeRes) {
+					break
+				}
 
-			if itemsNumber == len(pokeRes) {
-				break
+				if isOdd && pokemonId%2 == 0 {
+					pokeRes <- item
+				}
+
+				if !isOdd && pokemonId%2 != 0 {
+					pokeRes <- item
+				}
 			}
-
-			if isOdd && pokemonId%2 == 0 {
-				pokeRes <- item
-			}
-
-			if !isOdd && pokemonId%2 != 0 {
-				pokeRes <- item
-			}
-
-		}
+		}()
 	}
 
-	wg.Wait()
-	close(pokeRes)
+	go func() {
+		wg.Wait()
+		close(pokeRes)
+	}()
 
-	return pokemons, nil
+	for pokeItem := range pokeRes {
+		var id = pokeItem.Id
+		var name = pokeItem.Name
+		pokeTmp := model.Pokemon{
+			Id:   id,
+			Name: name,
+		}
+		pokemonFiltered = append(pokemonFiltered, pokeTmp)
+	}
 
+	return pokemonFiltered, nil
 }
