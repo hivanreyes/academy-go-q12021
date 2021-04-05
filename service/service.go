@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/go-resty/resty/v2"
-
 	model "github.com/hivanreyes/academy-go-q12021/model"
 	"github.com/hivanreyes/academy-go-q12021/utils"
+
+	"github.com/go-resty/resty/v2"
 )
 
 const pokeApiUrl = "https://pokeapi.co/api/v2/pokemon"
@@ -157,11 +157,13 @@ func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 // ReadConcurrentPokemon Get all pokemons concurrently
 func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string, pokemons []model.Pokemon) ([]model.Pokemon, error) {
 	itemsNumber, err := strconv.Atoi(items)
+
 	if err != nil {
 		return nil, err
 	}
 
 	itemsWorker, err := strconv.Atoi(itemPerWorker)
+
 	if err != nil {
 		return nil, err
 	}
@@ -173,13 +175,14 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 	}
 
 	jobs := make(chan model.Pokemon, len(pokemons))
-	var pokemonFiltered []model.Pokemon = nil
 	pokeRes := make(chan model.Pokemon, itemsNumber)
+	var pokemonFiltered []model.Pokemon = nil
 
-	// Add all jobs
+	// Adding all jobs
 	for _, pokemon := range pokemons {
 		jobs <- pokemon
 	}
+
 	close(jobs)
 
 	isOdd := typeItem == "odd"
@@ -187,13 +190,15 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 	var wg sync.WaitGroup
 	wg.Add(numWorkers)
 
-	// Create workers
+	// Creating workers
 	for i := 0; i < numWorkers; i++ {
-
 		go func() {
+			// Complete worker when routines finishes
 			defer wg.Done()
 			for item := range jobs {
 				pokemonId, _ := strconv.Atoi(item.Id)
+
+				// Break when we reach max items
 				if itemsNumber == len(pokeRes) {
 					break
 				}
@@ -214,6 +219,7 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 		close(pokeRes)
 	}()
 
+	// Create filtered poke model
 	for pokeItem := range pokeRes {
 		var id = pokeItem.Id
 		var name = pokeItem.Name
