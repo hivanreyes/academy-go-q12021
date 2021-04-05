@@ -88,14 +88,15 @@ func getDataFromApi() (*model.Response, error) {
 
 	if err != nil {
 		fmt.Println("Error getting pokemons")
-		panic(err)
+		return nil, err
 	}
 
 	err = json.Unmarshal([]byte(resp.Body()), data)
 
 	if err != nil {
 		fmt.Println("Error parsing pokemons")
-		panic(err)
+		return nil, err
+
 	}
 
 	return data, nil
@@ -121,6 +122,7 @@ func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 
 	if err != nil {
 		fmt.Println("Error creating csv")
+		return nil, err
 	}
 
 	w := csv.NewWriter(f)
@@ -129,6 +131,7 @@ func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 	// Add headers to the csv
 	if err := w.Write([]string{"id", "name"}); err != nil {
 		fmt.Println("Error adding titles to csv")
+		return nil, err
 	}
 
 	var pokemons []model.Pokemon = nil
@@ -155,19 +158,7 @@ func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 }
 
 // ReadConcurrentPokemon Get all pokemons concurrently
-func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string, pokemons []model.Pokemon) ([]model.Pokemon, error) {
-	itemsNumber, err := strconv.Atoi(items)
-
-	if err != nil {
-		return nil, err
-	}
-
-	itemsWorker, err := strconv.Atoi(itemPerWorker)
-
-	if err != nil {
-		return nil, err
-	}
-
+func (s *Service) ReadConcurrentPokemon(typeItem string, itemsNumber int, itemsWorker int, pokemons []model.Pokemon) ([]model.Pokemon, error) {
 	numWorkers := itemsNumber / itemsWorker
 
 	if itemsNumber%2 != 0 {
@@ -190,6 +181,8 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 	var wg sync.WaitGroup
 	wg.Add(numWorkers)
 
+	fmt.Println(itemsNumber)
+
 	// Creating workers
 	for i := 0; i < numWorkers; i++ {
 		go func() {
@@ -200,6 +193,7 @@ func (s *Service) ReadConcurrentPokemon(typeItem string, items string, itemPerWo
 
 				// Break when we reach max items
 				if itemsNumber == len(pokeRes) {
+					fmt.Println(len(pokeRes))
 					break
 				}
 

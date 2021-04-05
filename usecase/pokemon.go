@@ -12,7 +12,7 @@ type UseCase struct {
 type Service interface {
 	ReadPokemon() ([]model.Pokemon, error)
 	SavePokemon() ([]model.Pokemon, error)
-	ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string, pokemons []model.Pokemon) ([]model.Pokemon, error)
+	ReadConcurrentPokemon(typeItem string, items int, itemPerWorker int, pokemons []model.Pokemon) ([]model.Pokemon, error)
 }
 
 // New UseCase
@@ -31,7 +31,7 @@ func (u *UseCase) SavePokemon() ([]model.Pokemon, error) {
 }
 
 // ReadPokemon Usecase
-func (u *UseCase) ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string) ([]model.Pokemon, error) {
+func (u *UseCase) ReadConcurrentPokemon(typeItem string, items int, itemPerWorker int) ([]model.Pokemon, error) {
 	pokemons, err := u.service.ReadPokemon()
 
 	if err != nil {

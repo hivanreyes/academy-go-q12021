@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/hivanreyes/academy-go-q12021/model"
 )
@@ -10,7 +11,7 @@ import (
 type UseCase interface {
 	ReadPokemon() ([]model.Pokemon, error)
 	SavePokemon() ([]model.Pokemon, error)
-	ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string) ([]model.Pokemon, error)
+	ReadConcurrentPokemon(typeItem string, items int, itemPerWorker int) ([]model.Pokemon, error)
 }
 
 // PokeUsecase usecase struct
@@ -60,12 +61,26 @@ func (u *PokeUsecase) ReadConcurrentPokemon(w http.ResponseWriter, r *http.Reque
 	items := r.URL.Query().Get("items")
 	itemPerWorker := r.URL.Query().Get("items_per_workers")
 
-	if typeItem == "" || items == "" || itemPerWorker == "" {
+	itemsNumber, err := strconv.Atoi(items)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	itemsWorker, err := strconv.Atoi(itemPerWorker)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if typeItem == "" || items == "" || itemPerWorker == "" || itemsWorker > itemsNumber {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	pokemon, err := u.useCase.ReadConcurrentPokemon(typeItem, items, itemPerWorker)
+	pokemon, err := u.useCase.ReadConcurrentPokemon(typeItem, itemsNumber, itemsWorker)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
