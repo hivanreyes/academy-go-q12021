@@ -12,7 +12,7 @@ type Controller interface {
 	ReadConcurrentPokemon(w http.ResponseWriter, r *http.Request)
 }
 
-// Initialize Router
+// New initialize Router
 func New(c Controller) *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/getAllPokemon", c.ReadPokemon).Methods("GET")

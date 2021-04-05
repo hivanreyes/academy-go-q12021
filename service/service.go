@@ -21,7 +21,7 @@ const pokeApiUrl = "https://pokeapi.co/api/v2/pokemon"
 const newFileName = "data/pokemon1.csv"
 const filename = "data/pokemon.csv"
 
-// Service
+// Service struct
 type Service struct{}
 
 // New Service
@@ -29,7 +29,7 @@ func New() *Service {
 	return &Service{}
 }
 
-// Get all pokemons
+// ReadPokemon Get all pokemons from csv
 func (s *Service) ReadPokemon() ([]model.Pokemon, error) {
 	// Open CSV file
 	file, err := os.Open(filename)
@@ -101,7 +101,7 @@ func getDataFromApi() (*model.Response, error) {
 	return data, nil
 }
 
-// Get data from api and save data into CSV
+// SavePokemon Get data from api and save data into CSV
 func (s *Service) SavePokemon() ([]model.Pokemon, error) {
 	data, errData := getDataFromApi()
 

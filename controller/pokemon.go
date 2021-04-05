@@ -13,17 +13,17 @@ type UseCase interface {
 	ReadConcurrentPokemon(typeItem string, items string, itemPerWorker string) ([]model.Pokemon, error)
 }
 
-// Usecase struct
+// PokeUsecase usecase struct
 type PokeUsecase struct {
 	useCase UseCase
 }
 
-// Initialize controller
+// New initialize controller
 func New(u UseCase) *PokeUsecase {
 	return &PokeUsecase{u}
 }
 
-// Read Pokemon controller
+// ReadPokemon Read Pokemon controller
 func (u *PokeUsecase) ReadPokemon(w http.ResponseWriter, r *http.Request) {
 
 	pokemon, err := u.useCase.ReadPokemon()
@@ -39,7 +39,7 @@ func (u *PokeUsecase) ReadPokemon(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-// Save Pokemon controller
+// SavePokemon Save Pokemon controller
 func (u *PokeUsecase) SavePokemon(w http.ResponseWriter, r *http.Request) {
 	pokemon, err := u.useCase.SavePokemon()
 
@@ -54,7 +54,7 @@ func (u *PokeUsecase) SavePokemon(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-// Read Pokemon Concurrently controller
+// ReadConcurrentPokemon Read Pokemons concurrently controller
 func (u *PokeUsecase) ReadConcurrentPokemon(w http.ResponseWriter, r *http.Request) {
 	typeItem := r.URL.Query().Get("type")
 	items := r.URL.Query().Get("items")
